@@ -1,6 +1,6 @@
 # 企业销售全景数据大屏
 
-基于 `AdventureWorksDW` 数仓的企业销售全景仪表盘，面向销售管理、经营分析和课程答辩展示场景。项目采用 FastAPI 后端、SQL Server 查询接口、SQLite 本地产品管理库，以及原生 HTML/CSS/JavaScript + ECharts 前端大屏。
+基于codex开发的 `AdventureWorksDW` 数仓的企业销售全景仪表盘，面向销售管理、经营分析和课程答辩展示场景。项目采用 FastAPI 后端、SQL Server 查询接口、SQLite 本地产品管理库，以及原生 HTML/CSS/JavaScript + ECharts 前端大屏。
 
 首页以 16:9 横屏大屏为主要展示形态，支持 KPI 总览、销售趋势、渠道对比、产品排行、产品月度明细、客户地理分布、异常预警和产品数据管理。
 
@@ -148,10 +148,10 @@ pymssql
 当前交付版本已按演示要求将数据库连接信息硬编码到 `backend/db.py`，运行时不再依赖系统环境变量或 `backend/.env`：
 
 ```text
-DB_SERVER = "119.29.239.123"
-DB_DATABASE = "AdventureWorksDW"
-DB_USER = "readonlyuser"
-DB_PASSWORD = "Bigdata@123"
+DB_SERVER = ""
+DB_DATABASE = ""
+DB_USER = ""
+DB_PASSWORD = ""
 ```
 
 `backend/database.py` 作为兼容入口保留，内部复用 `backend/db.py` 的连接和查询函数。
