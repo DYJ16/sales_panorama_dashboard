@@ -134,7 +134,7 @@ C:\Users\PXHONY\Desktop\spark\dist\sales_panorama_dashboard.tar.gz
 
 将该文件上传到 node1 的 `/export/server/project` 目录。
 
-![image-20260702221434599](C:\Users\PXHONY\AppData\Roaming\Typora\typora-user-images\image-20260702221434599.png)
+![上传部署包到服务器](images/linux-upload-package.png)
 
 如果使用 Xftp、FinalShell、MobaXterm 或其他图形工具，直接把压缩包拖到：
 
@@ -150,7 +150,7 @@ scp sales_panorama_dashboard.tar.gz root@node1:/export/server/project/
 
 ## 8. 服务器部署：创建目录并解压
 
-![image-20260702221449296](C:\Users\PXHONY\AppData\Roaming\Typora\typora-user-images\image-20260702221449296.png)
+![解压项目目录](images/linux-extract-project.png)
 
 在 node1 上执行：
 
@@ -184,17 +184,21 @@ backend  frontend  docs  output  scripts  run.py  README.md
 
 创建虚拟环境安装好所需的模块
 
-![image-20260702221525109](C:\Users\PXHONY\AppData\Roaming\Typora\typora-user-images\image-20260702221525109.png)
+![安装项目依赖](images/linux-install-deps.png)
 
 ## 9. 检查 Spark 集群
 
-在 node1 上执行：![image-20260702221541919](C:\Users\PXHONY\AppData\Roaming\Typora\typora-user-images\image-20260702221541919.png)
+在 node1 上执行：
+
+![检查 Spark 集群命令](images/linux-check-spark-command.png)
 
 ```bash
 bash scripts/check_spark_cluster.sh
 ```
 
-也可以打开 Spark Master UI：![image-20260702221554607](C:\Users\PXHONY\AppData\Roaming\Typora\typora-user-images\image-20260702221554607.png)
+也可以打开 Spark Master UI：
+
+![Spark Master UI](images/linux-spark-master-ui.png)
 
 ```text
 http://node1:8080
@@ -236,7 +240,7 @@ alerts.json
 
 这些文件是 Spark 分布式指标计算结果，前端和 DeepSeek V4 都会使用这些结果。
 
-![image-20260702221606032](C:\Users\PXHONY\AppData\Roaming\Typora\typora-user-images\image-20260702221606032.png)
+![Spark 输出结果](images/linux-spark-output.png)
 
 ## 11. 启动系统
 
@@ -262,11 +266,11 @@ bash scripts/start.sh
 
 前端
 
-![image-20260702221633422](C:\Users\PXHONY\AppData\Roaming\Typora\typora-user-images\image-20260702221633422.png)
+![前端服务启动](images/linux-frontend-service.png)
 
 后端
 
-![image-20260702221638021](C:\Users\PXHONY\AppData\Roaming\Typora\typora-user-images\image-20260702221638021.png)
+![后端服务启动](images/linux-backend-service.png)
 
 
 
