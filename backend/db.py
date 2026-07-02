@@ -1,17 +1,21 @@
 import datetime
 import decimal
+import os
 from contextlib import contextmanager
 from typing import Any, Dict, Iterable, List, Optional
 
-import pymssql
+try:
+    import pymssql
+except ImportError:
+    pymssql = None
 
 
-DB_SERVER = "119.29.239.123"
-DB_DATABASE = "AdventureWorksDW"
-DB_USER = "readonlyuser"
-DB_PASSWORD = "Bigdata@123"
-DB_LOGIN_TIMEOUT = 10
-DB_QUERY_TIMEOUT = 30
+DB_SERVER = os.getenv("DB_SERVER", os.getenv("SQLSERVER_HOST", "119.29.239.123"))
+DB_DATABASE = os.getenv("DB_DATABASE", os.getenv("SQLSERVER_DATABASE", "AdventureWorksDW"))
+DB_USER = os.getenv("DB_USER", os.getenv("SQLSERVER_USER", "readonlyuser"))
+DB_PASSWORD = os.getenv("DB_PASSWORD", os.getenv("SQLSERVER_PASSWORD", "Bigdata@123"))
+DB_LOGIN_TIMEOUT = int(os.getenv("DB_LOGIN_TIMEOUT", "10"))
+DB_QUERY_TIMEOUT = int(os.getenv("DB_QUERY_TIMEOUT", "30"))
 
 
 def get_db_config():
@@ -27,6 +31,11 @@ def get_db_config():
 
 @contextmanager
 def get_connection():
+    if pymssql is None:
+        raise RuntimeError(
+            "pymssql is not installed. SQL Server direct fallback is unavailable; "
+            "run the Spark job first or install pymssql separately."
+        )
     config = get_db_config()
     conn = pymssql.connect(**config)
     try:

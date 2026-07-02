@@ -1,0 +1,1120 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Spark AI 企业销售决策系统</title>
+  <style>
+    :root {
+      --navy-950: #06245c;
+      --navy-900: #082f78;
+      --blue-800: #0a4dae;
+      --blue-700: #125fc9;
+      --blue-500: #4d91e8;
+      --blue-200: #dbeaff;
+      --blue-100: #edf5ff;
+      --gold: #e4b23c;
+      --gold-2: #f2cc63;
+      --white: #ffffff;
+      --soft: #c9dcff;
+      --glass: rgba(225, 237, 255, .92);
+      --glass-line: rgba(255, 255, 255, .34);
+      --shadow: 0 38px 100px rgba(3, 28, 78, .32);
+      --ease: cubic-bezier(.16, 1, .3, 1);
+      --serif: Georgia, "Noto Serif SC", "Songti SC", "STSong", serif;
+      --sans: "Microsoft YaHei", "PingFang SC", "Noto Sans SC", Arial, sans-serif;
+      --mono: Consolas, "SFMono-Regular", monospace;
+      --pad-x: clamp(42px, 8vw, 160px);
+      --topbar: 78px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { width: 100%; height: 100%; overflow: hidden; }
+    body {
+      color: var(--white);
+      font-family: var(--sans);
+      background: linear-gradient(180deg, var(--navy-950) 0%, var(--blue-800) 48%, #6aa9ef 100%);
+    }
+
+    .sky {
+      position: fixed;
+      inset: 0;
+      z-index: -5;
+      pointer-events: none;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 72% 32%, rgba(255,255,255,.10), transparent 15rem),
+        radial-gradient(circle at 24% 70%, rgba(255,255,255,.10), transparent 18rem),
+        linear-gradient(180deg, #06245c 0%, #0b50b7 48%, #6aa9ef 100%);
+    }
+
+    .sky::before,
+    .sky::after {
+      content: "";
+      position: absolute;
+      width: 36rem;
+      height: 6.2rem;
+      border-radius: 999px;
+      background: rgba(255,255,255,.06);
+      filter: blur(4px);
+    }
+    .sky::before { left: -9rem; top: 15%; }
+    .sky::after { right: 8%; top: 29%; width: 29rem; }
+
+    .route {
+      position: absolute;
+      left: -10vw;
+      right: -10vw;
+      height: 1px;
+      border-top: 1px solid rgba(255,255,255,.18);
+      transform-origin: left center;
+    }
+    .route.one { top: 43%; transform: rotate(-9deg); }
+    .route.two { top: 53%; transform: rotate(-6deg); opacity: .52; }
+    .route.three { top: 62%; transform: rotate(-12deg); opacity: .34; }
+
+    .topbar {
+      position: fixed;
+      inset: 0 0 auto;
+      z-index: 40;
+      height: var(--topbar);
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      padding: 0 var(--pad-x);
+      background: linear-gradient(90deg, rgba(5, 41, 105, .98), rgba(9, 82, 190, .96));
+      box-shadow: 0 1px 0 rgba(255,255,255,.08);
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--white);
+      text-decoration: none;
+      font-family: var(--serif);
+      font-size: clamp(1.25rem, 1.7vw, 1.75rem);
+      font-weight: 800;
+    }
+    .brand-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: rgba(255,255,255,.16);
+      font-family: var(--sans);
+      font-size: 22px;
+    }
+    .brand em { color: var(--gold); font-style: italic; }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      gap: clamp(20px, 2.5vw, 42px);
+      font-size: .92rem;
+      font-weight: 800;
+    }
+    .nav a {
+      color: rgba(255,255,255,.88);
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    .nav a:hover { color: var(--gold-2); }
+
+    .index-button {
+      justify-self: end;
+      height: 44px;
+      padding: 0 26px;
+      border: 1px solid rgba(255,255,255,.34);
+      border-radius: 999px;
+      background: transparent;
+      color: var(--white);
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    .index-panel {
+      position: fixed;
+      right: 32px;
+      top: 96px;
+      z-index: 50;
+      display: grid;
+      gap: 8px;
+      width: min(350px, calc(100vw - 64px));
+      opacity: 0;
+      transform: translateY(-12px);
+      pointer-events: none;
+      transition: opacity .25s ease, transform .25s ease;
+    }
+    body.index-open .index-panel {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+    .index-panel button {
+      border: 1px solid rgba(255,255,255,.28);
+      border-radius: 999px;
+      background: rgba(224,238,255,.94);
+      color: #173567;
+      padding: 12px 18px;
+      text-align: left;
+      font-weight: 900;
+      cursor: pointer;
+    }
+    .index-panel button.active {
+      background: var(--gold);
+      color: #102758;
+      border-color: transparent;
+    }
+
+    .progress {
+      position: fixed;
+      top: var(--topbar);
+      left: 0;
+      z-index: 45;
+      width: 0%;
+      height: 3px;
+      background: linear-gradient(90deg, var(--gold), var(--gold-2));
+      transition: width 480ms var(--ease);
+    }
+
+    #deck {
+      display: flex;
+      width: max-content;
+      height: 100vh;
+      height: 100dvh;
+      transform: translateX(0);
+      transition: transform 680ms var(--ease);
+    }
+
+    .slide {
+      position: relative;
+      flex: 0 0 100vw;
+      width: 100vw;
+      height: 100vh;
+      height: 100dvh;
+      overflow: hidden;
+      padding: calc(var(--topbar) + 58px) var(--pad-x) 64px;
+      display: grid;
+      align-content: center;
+      gap: clamp(20px, 3vw, 44px);
+      isolation: isolate;
+    }
+    .slide::after {
+      content: "";
+      position: absolute;
+      inset: auto 0 0;
+      height: 18vh;
+      z-index: -1;
+      background: linear-gradient(0deg, rgba(255,255,255,.12), transparent);
+    }
+
+    .page-mark {
+      position: absolute;
+      left: var(--pad-x);
+      top: calc(var(--topbar) + 22px);
+      color: rgba(255,255,255,.62);
+      font-weight: 900;
+      letter-spacing: .08em;
+      font-size: .82rem;
+    }
+
+    .badge,
+    .kicker {
+      width: fit-content;
+      padding: 10px 22px;
+      border: 1px solid rgba(255,255,255,.26);
+      border-radius: 999px;
+      background: rgba(255,255,255,.14);
+      color: #e7f0ff;
+      font-weight: 900;
+      letter-spacing: .04em;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.12);
+    }
+    .hero .badge { justify-self: center; }
+    .kicker {
+      font-size: .86rem;
+      text-transform: uppercase;
+    }
+
+    h1,
+    h2 {
+      margin: 0;
+      color: var(--white);
+      font-family: var(--serif);
+      font-weight: 600;
+      line-height: 1.08;
+      letter-spacing: -.035em;
+      text-shadow: 0 18px 52px rgba(0,0,0,.12);
+    }
+    h1 {
+      max-width: 980px;
+      text-align: center;
+      font-size: clamp(3.7rem, 6.5vw, 6.9rem);
+    }
+    h2 {
+      max-width: 1060px;
+      font-size: clamp(2.8rem, 4.8vw, 5.35rem);
+    }
+    h1 span,
+    h2 span,
+    .gold-text {
+      color: var(--gold);
+      font-style: italic;
+    }
+    h3 {
+      margin: 0 0 12px;
+      color: inherit;
+      font-size: clamp(1.25rem, 1.8vw, 2rem);
+      line-height: 1.15;
+    }
+    p,
+    li {
+      color: var(--soft);
+      font-size: clamp(1rem, 1.35vw, 1.35rem);
+      line-height: 1.58;
+      font-weight: 700;
+    }
+    ul { padding-left: 1.1em; }
+
+    .hero {
+      justify-items: center;
+      text-align: center;
+    }
+    .hero-copy {
+      display: grid;
+      justify-items: center;
+      gap: 18px;
+    }
+    .hero-text {
+      max-width: 850px;
+      color: #cfe0ff;
+      font-size: clamp(1.15rem, 1.5vw, 1.55rem);
+    }
+
+    .flight-card {
+      width: min(980px, 100%);
+      min-height: 148px;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 1px;
+      padding: 24px 24px;
+      border-radius: 28px;
+      background: var(--glass);
+      box-shadow: var(--shadow);
+    }
+    .flight-card > div {
+      min-width: 0;
+      padding: 8px 20px;
+      border-right: 1px solid rgba(12, 49, 111, .12);
+      text-align: left;
+    }
+    .flight-card > div:last-child { border-right: 0; }
+    .flight-card small,
+    .panel small,
+    .node-card small,
+    .stack-card small {
+      display: block;
+      margin-bottom: 10px;
+      color: #6e8bb8;
+      font-size: .85rem;
+      font-weight: 900;
+    }
+    .flight-card strong {
+      display: block;
+      color: #132b58;
+      font-size: clamp(1.05rem, 1.22vw, 1.38rem);
+      white-space: normal;
+      line-height: 1.18;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: .9fr 1.1fr;
+      gap: clamp(28px, 4vw, 72px);
+      align-items: center;
+    }
+    .wide-left { grid-template-columns: 1.1fr .9fr; }
+    .wide-right { grid-template-columns: .85fr 1.15fr; }
+
+    .panel,
+    .node-card,
+    .stack-card,
+    .metric-card,
+    .check,
+    .screen,
+    .image-slot {
+      border: 1px solid var(--glass-line);
+      border-radius: var(--radius, 30px);
+      background: rgba(255,255,255,.13);
+      box-shadow: 0 20px 70px rgba(3,28,78,.16);
+      backdrop-filter: blur(12px);
+    }
+    .panel { padding: clamp(26px, 3vw, 48px); }
+    .panel.light,
+    .node-card.light,
+    .screen {
+      background: var(--glass);
+      color: #142e5f;
+    }
+    .panel.light p,
+    .node-card.light p,
+    .screen p { color: #4b6d9e; }
+
+    .compare,
+    .stack-grid,
+    .metric-grid,
+    .value-grid,
+    .checks,
+    .mini-grid {
+      display: grid;
+      gap: 18px;
+    }
+    .compare { grid-template-columns: 1fr; }
+    .stack-grid { grid-template-columns: repeat(4, 1fr); }
+    .metric-grid { grid-template-columns: repeat(3, 1fr); }
+    .value-grid { grid-template-columns: repeat(4, 1fr); }
+    .mini-grid { grid-template-columns: repeat(2, 1fr); }
+
+    .image-slot {
+      min-height: clamp(220px, 42vh, 440px);
+      display: grid;
+      place-items: center;
+      border-style: dashed;
+      background:
+        linear-gradient(135deg, rgba(255,255,255,.16), rgba(255,255,255,.07)),
+        radial-gradient(circle at 50% 20%, rgba(255,255,255,.12), transparent 38%);
+      color: rgba(255,255,255,.78);
+      text-align: center;
+      padding: 28px;
+    }
+    .image-slot strong {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--white);
+      font-size: clamp(1.4rem, 2.2vw, 2.4rem);
+    }
+    .image-slot span {
+      color: var(--soft);
+      font-weight: 800;
+      line-height: 1.5;
+    }
+    .slide.two-col > .image-slot {
+      grid-column: 1 / -1;
+      min-height: clamp(170px, 26vh, 280px);
+    }
+    .cluster .image-slot {
+      min-height: clamp(120px, 18vh, 200px);
+    }
+    .demo-slot {
+      min-height: clamp(210px, 34vh, 360px);
+    }
+
+    .stack-card,
+    .metric-card {
+      min-height: 154px;
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .stack-card b,
+    .metric-card b,
+    .value-grid b {
+      color: var(--white);
+      font-size: clamp(1.45rem, 2.2vw, 2.45rem);
+      line-height: 1.05;
+    }
+    .stack-card:nth-child(2),
+    .stack-card:nth-child(6),
+    .stack-card:nth-child(7),
+    .metric-card:nth-child(1),
+    .metric-card:nth-child(6) {
+      background: var(--glass);
+    }
+    .stack-card:nth-child(2) b,
+    .stack-card:nth-child(6) b,
+    .stack-card:nth-child(7) b,
+    .metric-card:nth-child(1) b,
+    .metric-card:nth-child(6) b {
+      color: #132b58;
+    }
+    .stack-card span,
+    .metric-card span,
+    .value-grid span {
+      color: var(--soft);
+      font-weight: 800;
+      line-height: 1.4;
+    }
+    .stack-card:nth-child(2) span,
+    .stack-card:nth-child(6) span,
+    .stack-card:nth-child(7) span,
+    .metric-card:nth-child(1) span,
+    .metric-card:nth-child(6) span {
+      color: #5b78a8;
+    }
+    .stack-card:nth-child(7) {
+      grid-column: auto;
+      min-height: 154px;
+      display: flex;
+    }
+
+    .layers {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 14px;
+    }
+    .layers .node-card {
+      min-height: 255px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .layers b {
+      color: var(--white);
+      font-size: clamp(1.35rem, 2vw, 2.2rem);
+      line-height: 1.05;
+    }
+    .layers .light b { color: #132b58; }
+    .layers span {
+      color: var(--soft);
+      font-weight: 800;
+      line-height: 1.4;
+    }
+    .layers .light span { color: #5b78a8; }
+
+    .cluster {
+      display: grid;
+      gap: 16px;
+      text-align: center;
+    }
+    .master {
+      justify-self: center;
+      width: min(720px, 100%);
+      padding: 28px;
+      border-radius: 30px;
+      background: var(--glass);
+      color: #132b58;
+      box-shadow: var(--shadow);
+    }
+    .master b {
+      display: block;
+      color: #132b58;
+      font-family: var(--serif);
+      font-size: clamp(2.1rem, 3.4vw, 3.8rem);
+      line-height: 1;
+    }
+    .workers {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+    .worker {
+      padding: 22px;
+      border-radius: 26px;
+      background: rgba(255,255,255,.14);
+      border: 1px solid rgba(255,255,255,.24);
+    }
+    .worker b {
+      display: block;
+      margin: 8px 0 12px;
+      color: var(--white);
+      font-size: clamp(1.55rem, 2.5vw, 2.8rem);
+      line-height: 1;
+    }
+
+    .pipeline {
+      display: grid;
+      grid-template-columns: 1fr 48px 1fr 48px 1fr 48px 1fr;
+      align-items: center;
+      gap: 12px;
+    }
+    .pipeline span {
+      min-height: 108px;
+      display: grid;
+      place-items: center;
+      padding: 16px;
+      border-radius: 24px;
+      background: var(--glass);
+      color: #132b58;
+      text-align: center;
+      font-size: clamp(1.05rem, 1.55vw, 1.7rem);
+      font-weight: 900;
+    }
+    .pipeline i {
+      height: 2px;
+      background: rgba(255,255,255,.55);
+      position: relative;
+    }
+    .pipeline i::after {
+      content: "";
+      position: absolute;
+      right: -1px;
+      top: -5px;
+      width: 11px;
+      height: 11px;
+      border-top: 2px solid rgba(255,255,255,.55);
+      border-right: 2px solid rgba(255,255,255,.55);
+      transform: rotate(45deg);
+    }
+    .chips,
+    .rules,
+    .journey {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+    }
+    .chips code,
+    .rules span,
+    .journey span {
+      padding: 12px 18px;
+      border: 1px solid rgba(255,255,255,.24);
+      border-radius: 999px;
+      background: rgba(255,255,255,.16);
+      color: var(--white);
+      font-weight: 900;
+    }
+
+    .slide[data-title="总体架构"],
+    .slide[data-title="技术栈"],
+    .slide[data-title="三节点集群"],
+    .slide[data-title="Spark 引擎"] {
+      align-content: start;
+      gap: 18px;
+      padding-top: calc(var(--topbar) + 44px);
+    }
+    .slide[data-title="总体架构"] h2,
+    .slide[data-title="技术栈"] h2,
+    .slide[data-title="三节点集群"] h2,
+    .slide[data-title="Spark 引擎"] h2 {
+      max-width: 1180px;
+      font-size: clamp(2.15rem, 3.6vw, 4rem);
+      line-height: 1.05;
+      letter-spacing: -.02em;
+    }
+    .slide[data-title="技术栈"] .stack-grid,
+    .slide[data-title="Spark 引擎"] .mini-grid {
+      gap: 14px;
+    }
+    .slide[data-title="Spark 引擎"] .panel {
+      padding: 22px;
+    }
+    .slide[data-title="Spark 引擎"] h3 {
+      font-size: clamp(1.05rem, 1.35vw, 1.45rem);
+      line-height: 1.18;
+    }
+
+    .screen {
+      min-height: min(56vh, 560px);
+      padding: 24px;
+      display: grid;
+      grid-template-rows: auto auto 1fr auto;
+      gap: 16px;
+    }
+    .screen-top {
+      display: flex;
+      justify-content: space-between;
+      color: #132b58;
+      font-weight: 900;
+    }
+    .screen-top span { color: #6e8bb8; }
+    .screen-kpis {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+    .screen-kpis b {
+      display: block;
+      padding: 20px;
+      border-radius: 18px;
+      background: #f7fbff;
+      color: var(--blue-800);
+      font-size: clamp(1.45rem, 2.2vw, 2.5rem);
+    }
+    .screen-chart {
+      border-radius: 22px;
+      background:
+        linear-gradient(135deg, transparent 45%, rgba(18,95,201,.38) 46% 48%, transparent 49%),
+        repeating-linear-gradient(90deg, rgba(18,95,201,.16) 0 14px, transparent 14px 30px),
+        #f7fbff;
+    }
+    .screen-report {
+      padding: 18px;
+      border-radius: 18px;
+      background: var(--blue-800);
+      color: var(--white);
+      font-weight: 900;
+    }
+
+    .check {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 18px;
+    }
+    .check i {
+      flex: 0 0 auto;
+      width: 28px;
+      height: 28px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--gold);
+      color: #132b58;
+      font-style: normal;
+      font-weight: 900;
+    }
+
+    .codebox,
+    pre {
+      white-space: pre-line;
+      font-family: var(--mono);
+      border: 1px solid rgba(255,255,255,.2);
+      border-radius: 28px;
+      background: rgba(4, 26, 72, .54);
+      color: #eaf3ff;
+      padding: 30px;
+      font-size: clamp(.9rem, 1.15vw, 1.15rem);
+      line-height: 1.5;
+    }
+
+    .value-ring {
+      position: relative;
+      width: min(42vw, 460px);
+      aspect-ratio: 1;
+      margin: 0 auto;
+      display: grid;
+      place-items: center;
+    }
+    .value-ring::before {
+      content: "";
+      position: absolute;
+      inset: 12%;
+      border: 1px dashed rgba(255,255,255,.38);
+      border-radius: 50%;
+      animation: rotate 18s linear infinite;
+    }
+    .value-center {
+      width: 42%;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      background: var(--glass);
+      color: #132b58;
+      box-shadow: var(--shadow);
+      font-family: var(--serif);
+      font-size: clamp(1rem, 1.5vw, 1.35rem);
+    }
+    .orb {
+      position: absolute;
+      width: 29%;
+      padding: 12px 14px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.18);
+      color: var(--white);
+      font-weight: 900;
+      text-align: center;
+    }
+    .o1 { top: 0; left: 36%; }
+    .o2 { right: 0; top: 34%; }
+    .o3 { right: 12%; bottom: 7%; }
+    .o4 { left: 12%; bottom: 7%; }
+    .o5 { left: 0; top: 34%; }
+
+    .dots {
+      position: fixed;
+      left: 50%;
+      bottom: 18px;
+      z-index: 45;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 8px;
+      padding: 8px 11px;
+      border: 1px solid rgba(255,255,255,.24);
+      border-radius: 999px;
+      background: rgba(8,47,120,.34);
+      backdrop-filter: blur(12px);
+    }
+    .dots button {
+      width: 8px;
+      height: 8px;
+      border: 0;
+      border-radius: 50%;
+      background: rgba(255,255,255,.48);
+      cursor: pointer;
+      transition: width .25s ease, background .25s ease;
+    }
+    .dots button.active {
+      width: 28px;
+      border-radius: 999px;
+      background: var(--gold);
+    }
+    .nav-hint {
+      position: fixed;
+      right: 28px;
+      bottom: 20px;
+      z-index: 45;
+      color: rgba(255,255,255,.72);
+      font-size: .82rem;
+      font-weight: 800;
+    }
+
+    .slide.active h1,
+    .slide.active h2,
+    .slide.active .badge,
+    .slide.active .kicker,
+    .slide.active .flight-card,
+    .slide.active .panel,
+    .slide.active .node-card,
+    .slide.active .stack-card,
+    .slide.active .metric-card,
+    .slide.active .screen,
+    .slide.active .master,
+    .slide.active .worker,
+    .slide.active .pipeline,
+    .slide.active .chips,
+    .slide.active .rules,
+    .slide.active .journey,
+    .slide.active .value-ring,
+    .slide.active .codebox,
+    .slide.active .image-slot,
+    .slide.active pre {
+      animation: rise 720ms var(--ease) both;
+    }
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(26px); filter: blur(5px); }
+      to { opacity: 1; transform: translateY(0); filter: blur(0); }
+    }
+    @keyframes rotate { to { transform: rotate(360deg); } }
+
+    @media (max-width: 980px), (max-height: 650px) {
+      :root { --pad-x: 28px; }
+      .topbar { grid-template-columns: 1fr auto; }
+      .nav { display: none; }
+      .two-col,
+      .wide-left,
+      .wide-right,
+      .layers,
+      .stack-grid,
+      .metric-grid,
+      .value-grid,
+      .mini-grid,
+      .workers,
+      .pipeline,
+      .flight-card {
+        grid-template-columns: 1fr;
+      }
+      .pipeline i { display: none; }
+      .slide { padding-top: calc(var(--topbar) + 42px); }
+      .layers .node-card { min-height: 160px; }
+      .stack-card:nth-child(7) { min-height: 150px; }
+      .flight-card strong { font-size: 1.05rem; }
+      .nav-hint { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="sky" aria-hidden="true">
+    <span class="route one"></span>
+    <span class="route two"></span>
+    <span class="route three"></span>
+  </div>
+  <header class="topbar">
+    <a class="brand" href="#"><span class="brand-icon">✈</span><span>Spark<em>Star</em></span></a>
+    <nav class="nav" aria-label="main sections">
+      <a href="#" data-jump="2">系统架构</a>
+      <a href="#" data-jump="4">分布式集群</a>
+      <a href="#" data-jump="7">可视化大屏</a>
+      <a href="#" data-jump="8">AI 分析</a>
+    </nav>
+    <button class="index-button" type="button">目录 ✈</button>
+  </header>
+  <aside class="index-panel" aria-label="slide index"></aside>
+  <div class="progress" aria-hidden="true"></div>
+  <main id="deck">
+    <section class="slide hero active" data-title="封面">
+      <div class="page-mark">01 / 12</div>
+      <div class="hero-copy">
+        <div class="badge">✦ 基于分布式指标计算与 DeepSeek V4 智能分析</div>
+        <h1><span>Spark AI</span><br>企业销售决策系统</h1>
+        <p class="hero-text">面向企业销售管理、经营分析和管理层决策场景，围绕销售规模、订单趋势、渠道结构、产品贡献、区域表现和经营风险构建统一分析平台。</p>
+      </div>
+      <div class="flight-card">
+        <div><small>核心能力</small><strong>分布式指标计算</strong></div>
+        <div><small>智能能力</small><strong>经营诊断报告</strong></div>
+        <div><small>展示能力</small><strong>销售决策大屏</strong></div>
+        <div><small>系统链路</small><strong>Data → Spark → AI</strong></div>
+      </div>
+    </section>
+
+    <section class="slide two-col" data-title="背景目标">
+      <div class="page-mark">02 / 12</div>
+      <div>
+        <div class="kicker">Project Background</div>
+        <h2>从传统销售大屏到 <span>Spark AI</span> 销售决策系统</h2>
+        <p>传统销售大屏通常以图表展示为主，但管理者更需要知道变化原因、渠道结构、产品依赖、区域机会以及下一步管理动作。</p>
+      </div>
+      <div class="compare">
+        <article class="panel"><small>传统方式</small><h3>SQL → 后端查询 → 图表展示 → 人工判断</h3><p>后端接口直接查询数据库，复杂指标压力集中在数据库和 Web 后端，无法体现多节点分布式计算能力。</p></article>
+        <article class="panel light"><small>本系统方式</small><h3>SQL → Spark 分布式指标计算 → FastAPI → 可视化大屏 → DeepSeek V4 决策建议</h3><p>Spark 统一计算经营指标，FastAPI 统一提供接口，ECharts 构建可视化大屏，DeepSeek V4 生成经营诊断报告。</p></article>
+      </div>
+    </section>
+
+    <section class="slide" data-title="总体架构">
+      <div class="page-mark">03 / 12</div>
+      <div class="kicker">Five-layer Architecture</div>
+      <h2>五层架构：数据源、分布式计算、指标服务、可视化展示、智能分析</h2>
+      <div class="layers">
+        <article class="node-card"><b>数据源层</b><span>SQL Server / AdventureWorksDW 提供销售事实表和维度表，是系统的数据事实来源。</span></article>
+        <article class="node-card light"><b>分布式指标计算层</b><span>Spark Standalone 通过 JDBC 读取数据，在 node1、node2、node3 上并行计算。</span></article>
+        <article class="node-card"><b>指标结果层</b><span>Spark 输出 KPI、趋势、渠道、产品、区域和预警 JSON 文件，形成稳定指标层。</span></article>
+        <article class="node-card"><b>接口服务层</b><span>FastAPI 读取 Spark 结果文件并提供 REST API，同时提供 DeepSeek V4 报告生成接口。</span></article>
+        <article class="node-card"><b>可视化与智能分析层</b><span>ECharts 负责图表呈现，DeepSeek V4 负责把指标转化为经营结论和管理建议。</span></article>
+      </div>
+    </section>
+
+    <section class="slide" data-title="技术栈">
+      <div class="page-mark">04 / 12</div>
+      <div class="kicker">Technology Stack</div>
+      <h2>每个技术组件服务一类核心能力</h2>
+      <div class="stack-grid">
+        <article class="stack-card"><small>warehouse</small><b>SQL Server</b><span>销售事实与维度数据</span></article>
+        <article class="stack-card"><small>compute</small><b>Spark / PySpark</b><span>多节点指标计算</span></article>
+        <article class="stack-card"><small>bridge</small><b>JDBC</b><span>打通数仓与计算层</span></article>
+        <article class="stack-card"><small>backend</small><b>FastAPI</b><span>统一指标接口</span></article>
+        <article class="stack-card"><small>visual</small><b>ECharts</b><span>经营图表呈现</span></article>
+        <article class="stack-card"><small>ai</small><b>DeepSeek V4</b><span>经营诊断报告</span></article>
+        <article class="stack-card"><small>deployment</small><b>Windows + CentOS7</b><span>Windows 本地验证，CentOS7 三节点 Spark 集群部署，前端 8090、后端 8002 联调运行。</span></article>
+      </div>
+    </section>
+
+    <section class="slide" data-title="三节点集群">
+      <div class="page-mark">05 / 12</div>
+      <div class="kicker">Spark Standalone Cluster</div>
+      <h2>node1、node2、node3 如何构成 Spark 分布式指标计算集群</h2>
+      <div class="cluster">
+        <div class="master"><small>master</small><b>node1:7077</b><span>接收作业 · 管理 Worker · 调度 Executor 与 Task</span></div>
+        <div class="workers">
+          <article class="worker"><small>worker</small><b>node1</b><p>接收 Spark 计算任务，同时也可以作为 Worker 参与计算。</p></article>
+          <article class="worker"><small>worker</small><b>node2</b><p>接收 Master 分配的计算任务，执行销售指标中的部分 Partition。</p></article>
+          <article class="worker"><small>worker</small><b>node3</b><p>承接产品排行、区域汇总、渠道聚合等分区计算。</p></article>
+        </div>
+        <div class="image-slot"><div><strong>图片占位：Spark UI / Worker 注册截图</strong><span>建议放 node1、node2、node3 Worker 已注册到 Master 的截图，突出“参与并行计算”。</span></div></div>
+      </div>
+    </section>
+
+    <section class="slide" data-title="Spark 引擎">
+      <div class="page-mark">06 / 12</div>
+      <div class="kicker">Spark Metric Engine</div>
+      <h2>Spark 分布式指标计算引擎：从销售明细到经营指标</h2>
+      <div class="pipeline">
+        <span>事实表 + 维度表</span><i></i><span>统一销售宽表</span><i></i><span>分布式聚合</span><i></i><span>JSON 指标结果</span>
+      </div>
+      <div class="chips">
+        <code>compute_kpis()</code><code>compute_trend()</code><code>compute_channels()</code><code>compute_top_products()</code><code>compute_geo()</code><code>compute_alerts()</code>
+      </div>
+      <div class="mini-grid">
+        <article class="panel"><small>输入数据</small><h3>FactInternetSales / FactResellerSales / DimDate / DimProduct / DimCustomer / DimGeography</h3><p>Spark 通过 JDBC 读取 AdventureWorksDW 中的关键事实表和维度表。</p></article>
+        <article class="panel light"><small>系统提升</small><h3>从接口实时查询升级为独立指标计算引擎</h3><p>复杂聚合由 Spark 统一完成，FastAPI 只负责读取结果和返回接口，前端与 AI 使用同一份结构化指标。</p></article>
+      </div>
+    </section>
+
+    <section class="slide" data-title="指标体系">
+      <div class="page-mark">07 / 12</div>
+      <div class="kicker">Business Metrics</div>
+      <h2>经营指标体系：从销售规模到风险预警的多维分析</h2>
+      <div class="metric-grid">
+        <article class="metric-card"><b>KPI</b><span>销售额 / 订单 / 客户 / 客单价</span></article>
+        <article class="metric-card"><b>趋势</b><span>月度销售额、峰值与低谷</span></article>
+        <article class="metric-card"><b>渠道</b><span>Internet / Reseller 结构</span></article>
+        <article class="metric-card"><b>产品</b><span>Top 产品、贡献率、产品线</span></article>
+        <article class="metric-card"><b>区域</b><span>国家、地区、城市销售表现</span></article>
+        <article class="metric-card"><b>预警</b><span>回落、集中、波动风险</span></article>
+      </div>
+    </section>
+
+    <section class="slide two-col wide-left" data-title="可视化大屏">
+      <div class="page-mark">08 / 12</div>
+      <div>
+        <div class="kicker">Management Cockpit</div>
+        <h2>可视化设计：面向管理层的销售经营驾驶舱</h2>
+        <p>前端大屏不是普通表格页面，而是面向经营管理的可视化驾驶舱，展示 KPI、趋势、渠道、产品、区域、AI 经营分析和 Spark 计算状态。</p>
+      </div>
+      <div class="screen">
+        <div class="screen-top">Spark AI 企业销售决策系统 <span>source: spark</span></div>
+        <div class="screen-kpis"><b>29.3M</b><b>80K</b><b>18K</b><b>606</b></div>
+        <div class="screen-chart"></div>
+        <div class="screen-report">DeepSeek V4 经营诊断报告</div>
+      </div>
+      <div class="image-slot"><div><strong>图片占位：系统首页大屏截图</strong><span>建议上传前端首页截图，展示 KPI、趋势图、渠道图、产品排行、AI 分析和 Spark 状态。</span></div></div>
+    </section>
+
+    <section class="slide two-col" data-title="DeepSeek V4">
+      <div class="page-mark">09 / 12</div>
+      <div>
+        <div class="kicker">DeepSeek V4 Diagnosis</div>
+        <h2>DeepSeek V4：从指标展示到 <span>经营诊断</span></h2>
+        <p>Spark 提供可信的结构化指标，DeepSeek V4 基于 KPI、趋势、渠道、产品、区域和预警结果生成管理层可直接阅读的经营分析报告。</p>
+      </div>
+      <div class="compare">
+        <article class="panel"><small>DeepSeek V4 输入</small><h3>KPI 总览 / 月度趋势 / 渠道结构 / Top 产品 / 区域表现 / 异常预警</h3></article>
+        <article class="panel light"><small>DeepSeek V4 输出</small><h3>总体经营概览 / 趋势判断 / 渠道分析 / 产品分析 / 区域分析 / 管理建议</h3></article>
+      </div>
+    </section>
+
+    <section class="slide two-col" data-title="Prompt 工程">
+      <div class="page-mark">10 / 12</div>
+      <div>
+        <div class="kicker">Prompt Engineering</div>
+        <h2>Prompt 工程：让 AI 输出专业、克制、可落地</h2>
+        <div class="rules"><span>基于数据</span><span>业务语言</span><span>结构清晰</span><span>长度可控</span><span>行动导向</span></div>
+      </div>
+      <pre>读取 Spark 指标结果
+  → 组装经营分析 Prompt
+  → 调用 DeepSeek V4 API
+  → 保存报告
+  → 前端展示</pre>
+    </section>
+
+    <section class="slide" data-title="实机演示">
+      <div class="page-mark">11 / 12</div>
+      <div class="kicker">Live Product Demo</div>
+      <h2>实机演示：用户如何使用 Spark AI 企业销售决策系统</h2>
+      <div class="journey"><span>看指标</span><span>看趋势</span><span>看结构</span><span>看风险</span><span>生成 AI 建议</span></div>
+      <p>用户进入销售决策大屏后，可以查看当前数据来源、Spark 计算结果状态、销售经营核心指标和 AI 经营分析入口，并进一步分析趋势、渠道、产品、区域和风险。</p>
+      <div class="image-slot demo-slot"><div><strong>图片占位：演示截图 / 操作流程图</strong><span>建议放“看指标 → 看趋势 → 看结构 → 看风险 → 生成 AI 决策建议”的实际页面截图或流程截图。</span></div></div>
+    </section>
+
+    <section class="slide two-col" data-title="价值总结">
+      <div class="page-mark">12 / 12</div>
+      <div>
+        <div class="kicker">Final Value</div>
+        <h2>Spark 与 DeepSeek V4 构成系统核心竞争力</h2>
+      </div>
+      <div class="value-grid">
+        <article class="metric-card"><b>数据可信</b><span>SQL Server 提供销售事实，保证数据来源完整可靠。</span></article>
+        <article class="metric-card"><b>计算高效</b><span>Spark 统一加工 Internet 与 Reseller 数据，并行计算经营指标。</span></article>
+        <article class="metric-card"><b>展示直观</b><span>FastAPI + ECharts 将指标转化为管理层可读的大屏图表。</span></article>
+        <article class="metric-card"><b>诊断智能</b><span>DeepSeek V4 基于 Spark 指标生成经营诊断和下一步管理建议。</span></article>
+      </div>
+    </section>
+  </main>
+  <div class="dots" aria-label="幻灯片导航"></div>
+  <div class="nav-hint">← → / Space / Wheel</div>
+
+  <script>
+    class SlidePresentation {
+      constructor() {
+        this.deck = document.getElementById("deck");
+        this.slides = Array.from(document.querySelectorAll(".slide"));
+        this.dots = document.querySelector(".dots");
+        this.progress = document.querySelector(".progress");
+        this.indexPanel = document.querySelector(".index-panel");
+        this.indexButton = document.querySelector(".index-button");
+        this.current = this.getInitialSlide();
+        this.wheelLocked = false;
+        this.touchStartX = 0;
+        this.buildDots();
+        this.buildIndex();
+        this.bindEvents();
+        this.goTo(this.current, false);
+      }
+
+      getInitialSlide() {
+        const value = Number(new URLSearchParams(window.location.search).get("slide"));
+        return Number.isFinite(value) && value >= 1 && value <= this.slides.length ? value - 1 : 0;
+      }
+
+      buildDots() {
+        this.dots.innerHTML = "";
+        this.slides.forEach((_, index) => {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.setAttribute("aria-label", `跳转到第 ${index + 1} 页`);
+          button.addEventListener("click", () => this.goTo(index));
+          this.dots.appendChild(button);
+        });
+      }
+
+      buildIndex() {
+        this.indexPanel.innerHTML = "";
+        this.slides.forEach((slide, index) => {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.textContent = `${String(index + 1).padStart(2, "0")} ${slide.dataset.title || "Slide"}`;
+          button.addEventListener("click", () => {
+            document.body.classList.remove("index-open");
+            this.goTo(index);
+          });
+          this.indexPanel.appendChild(button);
+        });
+      }
+
+      bindEvents() {
+        this.indexButton.addEventListener("click", () => document.body.classList.toggle("index-open"));
+        document.querySelectorAll("[data-jump]").forEach(link => {
+          link.addEventListener("click", event => {
+            event.preventDefault();
+            this.goTo(Number(link.dataset.jump));
+          });
+        });
+
+        document.addEventListener("keydown", event => {
+          if (["ArrowRight", "PageDown", " "].includes(event.key)) {
+            event.preventDefault();
+            this.next();
+          }
+          if (["ArrowLeft", "PageUp"].includes(event.key)) {
+            event.preventDefault();
+            this.prev();
+          }
+          if (event.key === "Home") this.goTo(0);
+          if (event.key === "End") this.goTo(this.slides.length - 1);
+          if (event.key === "Escape") document.body.classList.remove("index-open");
+        });
+
+        window.addEventListener("wheel", event => {
+          if (this.wheelLocked || Math.abs(event.deltaY) < 12) return;
+          this.wheelLocked = true;
+          event.deltaY > 0 ? this.next() : this.prev();
+          setTimeout(() => { this.wheelLocked = false; }, 650);
+        }, { passive: true });
+
+        window.addEventListener("touchstart", event => {
+          this.touchStartX = event.changedTouches[0].clientX;
+        }, { passive: true });
+
+        window.addEventListener("touchend", event => {
+          const delta = event.changedTouches[0].clientX - this.touchStartX;
+          if (Math.abs(delta) > 48) delta < 0 ? this.next() : this.prev();
+        }, { passive: true });
+
+        window.addEventListener("popstate", () => this.goTo(this.getInitialSlide(), false));
+      }
+
+      next() { this.goTo(this.current + 1); }
+      prev() { this.goTo(this.current - 1); }
+
+      goTo(index, syncUrl = true) {
+        this.current = Math.max(0, Math.min(this.slides.length - 1, index));
+        this.deck.style.transform = `translateX(${-this.current * 100}vw)`;
+        this.slides.forEach((slide, idx) => slide.classList.toggle("active", idx === this.current));
+        Array.from(this.dots.children).forEach((dot, idx) => dot.classList.toggle("active", idx === this.current));
+        Array.from(this.indexPanel.children).forEach((button, idx) => button.classList.toggle("active", idx === this.current));
+        this.progress.style.width = `${((this.current + 1) / this.slides.length) * 100}%`;
+        if (syncUrl) {
+          const url = new URL(window.location.href);
+          url.searchParams.set("slide", String(this.current + 1));
+          window.history.pushState({}, "", url);
+        }
+      }
+    }
+
+    new SlidePresentation();
+  </script>
+</body>
+</html>

@@ -2,8 +2,12 @@ import os
 import sqlite3
 from contextlib import contextmanager
 from typing import Any, Dict, List, Optional
-import pymssql
 from db import get_db_config
+
+try:
+    import pymssql
+except ImportError:
+    pymssql = None
 
 DB_PATH = os.path.join(os.path.dirname(__file__), "sales_crud.db")
 
@@ -55,6 +59,8 @@ def sync_and_init_db():
         # 3. 尝试从远程 SQL Server 同步
         remote_products = []
         try:
+            if pymssql is None:
+                raise RuntimeError("pymssql is not installed")
             config = get_db_config()
             # 缩短同步时的连接超时，避免无网络时卡住很久
             sync_config = config.copy()

@@ -2,8 +2,11 @@
 <html lang="zh-CN">
 <head>
   <meta charset="utf-8" />
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>猫猫销售全景数据系统Lv999 - AdventureWorksDW</title>
+  <title>企业销售全景数据大屏 · Spark分布式计算 + DeepSeek V4智能分析</title>
   <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
   <style>
     :root {
@@ -137,14 +140,15 @@
 
     .title h1 {
       color: #0f2b5c;
-      font-size: 34px;
+      font-size: 24px;
       line-height: 1.1;
       font-weight: 900;
-      letter-spacing: 2px;
-      white-space: nowrap;
+      letter-spacing: 0;
+      white-space: normal;
       position: relative;
       display: inline-block;
       padding: 0 50px;
+      max-width: 760px;
     }
 
     /* Sci-fi Title Wings */
@@ -1109,6 +1113,114 @@
       line-height: 1.6;
     }
 
+    .ai-insight-panel {
+      grid-column: 1 / -1;
+      position: relative;
+      z-index: 1;
+      display: grid;
+      gap: 14px;
+      padding: 18px;
+      border: 1px solid rgba(56, 189, 248, 0.24);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.66);
+      box-shadow: 0 10px 28px rgba(37, 99, 235, 0.06);
+    }
+
+    .ai-insight-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .ai-chip {
+      display: inline-flex;
+      height: 24px;
+      align-items: center;
+      padding: 0 9px;
+      border-radius: 999px;
+      color: #176bf2;
+      background: rgba(23, 107, 242, 0.08);
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .ai-insight-head h4 {
+      margin: 8px 0 0;
+      color: #0f2b5c;
+      font-size: 18px;
+      font-weight: 900;
+    }
+
+    .ai-model {
+      color: #647894;
+      font-size: 11px;
+      margin-top: 4px;
+    }
+
+    .ai-run-btn {
+      height: 34px;
+      border: 1px solid rgba(23, 107, 242, 0.35);
+      border-radius: 8px;
+      color: #fff;
+      background: linear-gradient(135deg, #176bf2, #38bdf8);
+      padding: 0 14px;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(23, 107, 242, 0.16);
+    }
+
+    .ai-run-btn:disabled {
+      cursor: wait;
+      opacity: 0.68;
+    }
+
+    .ai-insight-grid {
+      display: grid;
+      grid-template-columns: minmax(300px, 1fr) minmax(260px, 0.72fr);
+      gap: 14px;
+    }
+
+    .ai-report,
+    .ai-points {
+      min-height: 126px;
+      border-top: 1px solid rgba(56, 189, 248, 0.18);
+      padding-top: 12px;
+      color: #183865;
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .ai-report {
+      max-height: 220px;
+      overflow: auto;
+      white-space: pre-wrap;
+    }
+
+    .ai-points {
+      display: grid;
+      gap: 10px;
+    }
+
+    .ai-point {
+      padding: 10px 12px;
+      border: 1px solid rgba(56, 189, 248, 0.16);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.58);
+      font-size: 12px;
+      line-height: 1.5;
+      color: #334155;
+      word-break: break-word;
+    }
+
+    .ai-point b {
+      display: block;
+      color: #176bf2;
+      font-size: 12px;
+      margin-bottom: 4px;
+    }
+
     .workbench-crud {
       grid-column: 1 / -1;
       position: relative;
@@ -1414,6 +1526,15 @@
 
       .regi-controls {
         grid-template-columns: 1fr;
+      }
+
+      .ai-insight-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .ai-insight-head {
+        align-items: flex-start;
+        flex-direction: column;
       }
 
       .workbench-crud-head {
@@ -1772,13 +1893,13 @@
           <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6c0 1.66 3.58 3 8 3s8-1.34 8-3s-3.58-3-8-3s-8 1.34-8 3ZM4 6v6c0 1.66 3.58 3 8 3s8-1.34 8-3V6M4 12v6c0 1.66 3.58 3 8 3s8-1.34 8-3v-6"/></svg>
         </span>
         <div>
-          <div>数据来源：<strong>AdventureWorksDW</strong></div>
+          <div>数据来源：<strong>AdventureWorksDW / Spark 计算结果</strong></div>
           <div>数据刷新时间：<span id="healthText">正在连接数据源</span><span class="sync-icon"> ↻</span></div>
         </div>
       </div>
 
       <div class="title">
-        <h1>企业销售全景仪表盘</h1>
+        <h1>企业销售全景数据大屏 · Spark分布式计算 + DeepSeek V4智能分析</h1>
         <p>AdventureWorksDW 销售经营分析平台</p>
       </div>
 
@@ -1943,36 +2064,67 @@
 
     <section class="regi-lab" id="regiLab">
       <div class="regi-lab-copy">
-        <span class="regi-kicker">Interactive analysis layer</span>
-        <h3>销售工作台</h3>
-        <p>在不改变上方经营大屏的前提下，把观察模式和产品数据管理集中到这里，支持产品记录的新增、编辑、删除和查询。</p>
+        <span class="regi-kicker">Spark + DeepSeek V4</span>
+        <h3>AI 经营分析中心</h3>
+        <p>汇总 Spark 分布式计算结果，结合 DeepSeek V4 生成经营诊断、风险识别和管理层行动建议。</p>
       </div>
       <div class="regi-controls" role="group" aria-label="销售光场工作台模式">
         <button class="regi-mode active" type="button" data-mode="growth">
           <span>Growth</span>
-          <b>增长观察</b>
+          <b>增长趋势分析</b>
         </button>
         <button class="regi-mode" type="button" data-mode="channel">
           <span>Channel</span>
-          <b>渠道观察</b>
+          <b>渠道结构分析</b>
         </button>
         <button class="regi-mode" type="button" data-mode="risk">
           <span>Risk</span>
-          <b>风险观察</b>
+          <b>经营风险预警</b>
         </button>
       </div>
       <div class="regi-output">
         <div>
-          <small>当前模式</small>
-          <strong id="regiModeTitle">增长观察</strong>
+          <small>分析主题</small>
+          <strong id="regiModeTitle">增长趋势分析</strong>
         </div>
         <div>
-          <small>建议动作</small>
-          <strong id="regiModeAction">复核 2013-12 至 2014-01 的销售回落，并追踪头部产品库存。</strong>
+          <small>管理关注点</small>
+          <strong id="regiModeAction">识别销售额与订单量的阶段性变化，评估重点产品和渠道对增长的贡献。</strong>
         </div>
         <div>
-          <small>交互反馈</small>
-          <strong>移动鼠标会改变底层 skyblue 背景高光，点击模式会切换底部分析语义。</strong>
+          <small>数据链路</small>
+          <strong>SQL Server 数据仓库 → Spark 分布式计算 → FastAPI 指标服务 → DeepSeek V4 经营分析。</strong>
+        </div>
+      </div>
+      <div class="ai-insight-panel" id="aiInsightPanel">
+        <div class="ai-insight-head">
+          <div>
+            <span class="ai-chip">DeepSeek V4 智能经营分析</span>
+            <h4>AI 经营诊断报告</h4>
+            <div class="ai-model" id="aiModelText">数据来源：Spark 分布式计算结果 · 模型：deepseek-v4-flash</div>
+          </div>
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <button class="ai-run-btn" id="aiApplyBtn" type="button" style="display: none; background: linear-gradient(135deg, #10b981, #059669); border-color: rgba(16, 185, 129, 0.35); box-shadow: 0 8px 20px rgba(16, 185, 129, 0.16); font-size: 12px; font-weight: 800; height: 34px; padding: 0 14px; border-radius: 8px; color: #fff; cursor: pointer;">应用 AI 诊断过滤</button>
+            <button class="ai-run-btn" id="aiGenerateBtn" type="button">生成 AI 报告</button>
+          </div>
+        </div>
+        <div class="ai-insight-grid">
+          <div class="ai-report" id="aiReportText">正在读取 AI 经营诊断报告。若尚未生成，可点击右上角按钮基于 Spark 指标调用 DeepSeek V4 生成管理建议。</div>
+          <div class="ai-points">
+            <div class="ai-point">
+              <b>智能风险预警</b>
+              <span id="aiRiskText">结合销售趋势、渠道占比、区域排行和 Top 产品依赖风险进行判断。</span>
+            </div>
+            <div class="ai-point">
+              <b>管理建议</b>
+              <span id="aiAdviceText">优先关注销售波动、重点产品库存、渠道结构和高价值区域复制。</span>
+            </div>
+            <div class="ai-point" style="position: relative;">
+              <b>Spark 计算层</b>
+              <span id="sparkStatusText">优先读取 output/spark_result 指标文件；Windows 本地未生成 Spark 结果时由 SQL Server 实时查询兜底。</span>
+              <button class="more-link" type="button" id="sparkLogBtn" style="margin-top: 6px; display: inline-block;">查看 Spark 集群日志 &gt;</button>
+            </div>
+          </div>
         </div>
       </div>
       <div class="workbench-crud">
@@ -2092,6 +2244,27 @@
     </div>
   </div>
 
+  <!-- Spark Log Terminal Modal -->
+  <div class="crud-drawer-mask" id="logModalMask" style="z-index: 150;"></div>
+  <div class="crud-drawer" id="logModal" style="z-index: 160; width: 640px; background: rgba(15, 23, 42, 0.95); font-family: Consolas, Monaco, monospace; border-left: 1px solid rgba(56, 189, 248, 0.3);">
+    <div style="padding: 24px; display: flex; flex-direction: column; height: 100%;">
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(56, 189, 248, 0.2); padding-bottom: 12px; margin-bottom: 16px;">
+        <h3 style="color: #38bdf8; margin: 0; font-size: 16px; display: flex; align-items: center; gap: 8px;">
+          <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #10b981; animation: blink 1.2s infinite;"></span>
+          CentOS 7 Spark Standalone Cluster Logs
+        </h3>
+        <button id="closeLogBtn" style="background: transparent; border: none; color: #94a3b8; font-size: 24px; cursor: pointer; line-height: 1;">&times;</button>
+      </div>
+      <div id="sparkLogContent" style="flex: 1; overflow-y: auto; background: #090d16; border: 1px solid rgba(56, 189, 248, 0.15); border-radius: 6px; padding: 16px; color: #34d399; font-size: 11.5px; line-height: 1.6; white-space: pre-wrap; margin-bottom: 16px; font-family: Consolas, Monaco, monospace; height: calc(100vh - 160px);">
+        Loading cluster logs...
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 12px;">
+        <button id="refreshLogBtn" style="background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.3); color: #38bdf8; height: 36px; padding: 0 16px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 12px;">刷新日志</button>
+        <button id="closeLogBtn2" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); color: #fff; height: 36px; padding: 0 16px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 12px;">关闭</button>
+      </div>
+    </div>
+  </div>
+
   <!-- CRUD Drawer Modal -->
   <div class="crud-drawer-mask" id="crudDrawerMask"></div>
   <div class="crud-drawer" id="crudDrawer">
@@ -2140,7 +2313,8 @@
 
   <script>
     const API_HOST = window.location.hostname || "127.0.0.1";
-    const API_BASE = window.API_BASE || `${window.location.protocol}//${API_HOST}:8000`;
+    const API_PROTOCOL = window.location.protocol === "file:" ? "http:" : window.location.protocol;
+    const API_BASE = window.API_BASE || `${API_PROTOCOL}//${API_HOST}:8000`;
     const DEFAULT_FILTERS = {
       start_date: "2013-01-01",
       end_date: "2014-12-31",
@@ -2211,7 +2385,21 @@
       workbenchSearchName: document.getElementById("workbenchSearchName"),
       workbenchSearchLine: document.getElementById("workbenchSearchLine"),
       workbenchAddBtn: document.getElementById("workbenchAddBtn"),
-      workbenchTableBody: document.getElementById("workbenchTableBody")
+      workbenchTableBody: document.getElementById("workbenchTableBody"),
+      aiGenerateBtn: document.getElementById("aiGenerateBtn"),
+      aiReportText: document.getElementById("aiReportText"),
+      aiModelText: document.getElementById("aiModelText"),
+      aiRiskText: document.getElementById("aiRiskText"),
+      aiAdviceText: document.getElementById("aiAdviceText"),
+      sparkStatusText: document.getElementById("sparkStatusText"),
+      aiApplyBtn: document.getElementById("aiApplyBtn"),
+      sparkLogBtn: document.getElementById("sparkLogBtn"),
+      logModal: document.getElementById("logModal"),
+      logModalMask: document.getElementById("logModalMask"),
+      closeLogBtn: document.getElementById("closeLogBtn"),
+      closeLogBtn2: document.getElementById("closeLogBtn2"),
+      refreshLogBtn: document.getElementById("refreshLogBtn"),
+      sparkLogContent: document.getElementById("sparkLogContent")
     };
 
     const charts = {
@@ -2352,10 +2540,59 @@
       try {
         const data = await getJson("/api/health");
         const serverTime = data.server_time ? String(data.server_time).slice(0, 19).replace("T", " ") : "已连接";
-        els.healthText.textContent = serverTime;
+        els.healthText.textContent = `${serverTime} · Spark结果优先`;
       } catch {
         els.healthText.textContent = `后端未连接，请启动 ${API_HOST}:8000`;
       }
+    }
+
+    async function loadSparkStatus() {
+      if (!els.sparkStatusText) return;
+      try {
+        const data = await getJson("/api/spark/status");
+        const results = Object.values(data.results || {});
+        const readyCount = results.filter(Boolean).length;
+        els.sparkStatusText.textContent = readyCount
+          ? `Spark Master：${data.master}；已检测到 ${readyCount} 个结果文件，经营接口优先读取 Spark JSON。`
+          : `Spark Master：${data.master}；当前 Windows 本地尚未生成 Spark JSON，经营接口使用 SQL Server 实时查询兜底。`;
+      } catch (error) {
+        els.sparkStatusText.textContent = `Spark 状态读取失败：${error.message}`;
+      }
+    }
+
+    async function loadSparkLogs() {
+      if (!els.sparkLogContent) return;
+      els.sparkLogContent.textContent = "正在连接 CentOS Spark 集群拉取最新作业日志...";
+      try {
+        const data = await getJson("/api/spark/logs");
+        if (data.status === "ok") {
+          els.sparkLogContent.textContent = data.logs;
+        } else {
+          els.sparkLogContent.textContent = "Spark 集群日志拉取失败：" + (data.message || "未知原因");
+        }
+      } catch (error) {
+        els.sparkLogContent.textContent = `无法拉取 Spark 日志：${error.message}\n请检查后端 API 服务是否正常启动。`;
+      }
+    }
+
+    function parseAiRecommendations(reportText) {
+      const text = String(reportText || "");
+      let recs = { channel: "", product_line: "" };
+      if (text.includes("Internet") || text.includes("网络") || text.includes("网销")) {
+        recs.channel = "Internet";
+      } else if (text.includes("Reseller") || text.includes("经销") || text.includes("商销")) {
+        recs.channel = "Reseller";
+      }
+      if (text.includes("山地") || text.includes("Mountain") || /\bM\b/.test(text)) {
+        recs.product_line = "M";
+      } else if (text.includes("公路") || text.includes("Road") || /\bR\b/.test(text)) {
+        recs.product_line = "R";
+      } else if (text.includes("旅行") || text.includes("Touring") || /\bT\b/.test(text)) {
+        recs.product_line = "T";
+      } else if (text.includes("配件") || text.includes("Helmet") || text.includes("Sport") || /\bS\b/.test(text)) {
+        recs.product_line = "S";
+      }
+      return recs;
     }
 
     function fillSelect(select, values, firstLabel) {
@@ -2931,6 +3168,142 @@
       els.moreAlerts.onclick = () => toast(`当前销售额：${money(kpis.total_sales)}，共 ${merged.length} 条预警摘要`);
     }
 
+    function cleanMarkdown(text) {
+      if (!text) return "";
+      let lines = text.split("\n");
+      let cleanedLines = lines.map(line => {
+        // Remove table divider lines like |---|---| or | :--- |
+        if (/^\s*\|?(\s*:?-+:?\s*\|)+\s*$/.test(line)) {
+          return "";
+        }
+        // Remove markdown formatting
+        let cleaned = line
+          .replace(/#+\s+/g, "") // Headers
+          .replace(/\*\*|__/g, "") // Bold
+          .replace(/`([^`]+)`/g, "$1") // Code blocks
+          .replace(/^[-\*\+]\s+/g, "") // List items at start
+          .replace(/^[0-9]+\.\s+/g, "") // Ordered list numbers
+          .replace(/\|/g, " ") // Replace table pipes with space
+          .trim();
+        return cleaned;
+      }).filter(line => line.length > 0);
+      return cleanedLines.join("\n");
+    }
+
+    let typewriterTimer = null;
+    function typewriter(element, text, speed = 10, onComplete) {
+      if (typewriterTimer) clearInterval(typewriterTimer);
+      element.textContent = "";
+      let index = 0;
+      typewriterTimer = setInterval(() => {
+        if (index < text.length) {
+          element.textContent += text.charAt(index);
+          index++;
+          element.scrollTop = element.scrollHeight;
+        } else {
+          clearInterval(typewriterTimer);
+          typewriterTimer = null;
+          if (onComplete) onComplete();
+        }
+      }, speed);
+    }
+
+    function summarizeAiReport(report) {
+      const text = String(report || "");
+      const riskMatch = text.match(/六、异常风险预警([\s\S]*?)(七、|$)/) || text.match(/六、.*风险预警([\s\S]*?)(七、|$)/);
+      const adviceMatch = text.match(/七、管理建议([\s\S]*?)(八、|$)/) || text.match(/七、.*管理建议([\s\S]*?)(八、|$)/);
+      
+      if (els.aiRiskText) {
+        let riskText = riskMatch ? cleanMarkdown(riskMatch[1]).trim() : "";
+        if (!riskText) {
+          const cleanedText = cleanMarkdown(text);
+          const lines = cleanedText.split("\n");
+          const idx = lines.findIndex(l => l.includes("异常风险预警"));
+          if (idx !== -1 && idx + 1 < lines.length) {
+            riskText = lines[idx + 1];
+          }
+        }
+        if (riskText.length > 90) riskText = riskText.slice(0, 87) + "...";
+        els.aiRiskText.textContent = riskText || "结合销售趋势、渠道占比、区域排行和 Top 产品依赖风险进行判断。";
+      }
+      
+      if (els.aiAdviceText) {
+        let adviceText = adviceMatch ? cleanMarkdown(adviceMatch[1]).trim() : "";
+        if (!adviceText) {
+          const cleanedText = cleanMarkdown(text);
+          const lines = cleanedText.split("\n");
+          const idx = lines.findIndex(l => l.includes("管理建议"));
+          if (idx !== -1 && idx + 1 < lines.length) {
+            adviceText = lines[idx + 1];
+          }
+        }
+        if (adviceText.length > 90) adviceText = adviceText.slice(0, 87) + "...";
+        els.aiAdviceText.textContent = adviceText || "优先关注销售波动、重点产品库存、渠道结构和高价值区域复制。";
+      }
+
+      // Check recommendation button visibility
+      if (els.aiApplyBtn) {
+        const recs = parseAiRecommendations(text);
+        if (recs.channel || recs.product_line) {
+          els.aiApplyBtn.style.display = "inline-block";
+          let lbls = [];
+          if (recs.channel) lbls.push(recs.channel === "Internet" ? "网络销售" : "经销商");
+          if (recs.product_line) lbls.push("产品线:" + recs.product_line);
+          els.aiApplyBtn.title = "建议过滤: " + lbls.join(" + ");
+        } else {
+          els.aiApplyBtn.style.display = "none";
+        }
+      }
+    }
+
+    async function loadAiReport() {
+      if (!els.aiReportText) return;
+      try {
+        const data = await getJson("/api/ai/report");
+        if (els.aiModelText) {
+          els.aiModelText.textContent = `数据来源：Spark 分布式计算结果 · 模型：${data.model || "deepseek-v4-flash"}`;
+        }
+        if (data.status === "ok" && data.report) {
+          els.aiReportText.textContent = cleanMarkdown(data.report);
+          summarizeAiReport(data.report);
+        } else {
+          els.aiReportText.textContent = "AI 经营诊断报告尚未生成。点击“生成 AI 报告”后，系统会基于 Spark 指标调用 DeepSeek V4 生成管理层分析报告。";
+        }
+      } catch (error) {
+        els.aiReportText.textContent = `AI 报告读取失败：${error.message}`;
+      }
+    }
+
+    async function generateAiReport() {
+      if (!els.aiGenerateBtn || !els.aiReportText) return;
+      els.aiGenerateBtn.disabled = true;
+      els.aiGenerateBtn.textContent = "生成中...";
+      els.aiReportText.textContent = "正在生成 DeepSeek V4 智能经营分析报告...";
+      if (els.aiApplyBtn) els.aiApplyBtn.style.display = "none";
+      try {
+        const response = await fetch(`${API_BASE}/api/ai/report/generate`, { method: "POST" });
+        if (!response.ok) throw new Error(`AI 报告生成接口返回 ${response.status}`);
+        const data = await response.json();
+        if (data.status === "error") {
+          throw new Error(data.message || "DeepSeek V4 报告生成失败");
+        }
+        if (els.aiModelText) {
+          els.aiModelText.textContent = `数据来源：Spark 分布式计算结果 · 模型：${data.model || "deepseek-v4-flash"} · DeepSeek V4`;
+        }
+        const cleanedReport = cleanMarkdown(data.report || "");
+        typewriter(els.aiReportText, cleanedReport || "AI 报告已生成，但内容为空。", 10, () => {
+          summarizeAiReport(data.report || "");
+          toast("AI 经营诊断报告已生成");
+        });
+      } catch (error) {
+        els.aiReportText.textContent = `AI 报告生成失败：${error.message}`;
+        toast(`AI 报告生成失败：${error.message}`, true);
+      } finally {
+        els.aiGenerateBtn.disabled = false;
+        els.aiGenerateBtn.textContent = "生成 AI 报告";
+      }
+    }
+
     function renderErrorState(message) {
       Object.values(charts).forEach(chart => {
         chart.clear();
@@ -3192,6 +3565,9 @@
           openDrawer();
         });
       }
+      if (els.aiGenerateBtn) {
+        els.aiGenerateBtn.addEventListener("click", generateAiReport);
+      }
       document.querySelectorAll(".card").forEach(card => {
         card.addEventListener("pointermove", event => {
           const rect = card.getBoundingClientRect();
@@ -3244,6 +3620,48 @@
           refreshDashboard(els.channel.value ? `渠道筛选：${card.querySelector("h4").textContent}` : "渠道筛选已清除");
         });
       });
+
+      if (els.aiApplyBtn) {
+        els.aiApplyBtn.addEventListener("click", () => {
+          const recs = parseAiRecommendations(els.aiReportText.textContent);
+          let changed = false;
+          if (recs.channel) {
+            els.channel.value = recs.channel;
+            changed = true;
+          }
+          if (recs.product_line) {
+            els.productLine.value = recs.product_line;
+            changed = true;
+          }
+          if (changed) {
+            els.loadingMask.classList.remove("hidden");
+            refreshDashboard("已应用 AI 诊断过滤建议");
+            els.aiApplyBtn.style.display = "none";
+          } else {
+            toast("未检测到明确的过滤建议，无需应用");
+          }
+        });
+      }
+
+      const openLogModal = () => {
+        if (els.logModal && els.logModalMask) {
+          els.logModal.classList.add("open");
+          els.logModalMask.classList.add("show");
+          loadSparkLogs();
+        }
+      };
+      const closeLogModal = () => {
+        if (els.logModal && els.logModalMask) {
+          els.logModal.classList.remove("open");
+          els.logModalMask.classList.remove("show");
+        }
+      };
+
+      if (els.sparkLogBtn) els.sparkLogBtn.addEventListener("click", openLogModal);
+      if (els.closeLogBtn) els.closeLogBtn.addEventListener("click", closeLogModal);
+      if (els.closeLogBtn2) els.closeLogBtn2.addEventListener("click", closeLogModal);
+      if (els.logModalMask) els.logModalMask.addEventListener("click", closeLogModal);
+      if (els.refreshLogBtn) els.refreshLogBtn.addEventListener("click", loadSparkLogs);
     }
 
     function showKpiTooltip(event) {
@@ -3348,9 +3766,9 @@
       const title = document.getElementById("regiModeTitle");
       const action = document.getElementById("regiModeAction");
       const copy = {
-        growth: ["增长观察", "复核 2013-12 至 2014-01 的销售回落，并追踪头部产品库存。"],
-        channel: ["渠道观察", "对比网络销售与经销商销售的占比变化，优先定位渠道补货和客单价差异。"],
-        risk: ["风险观察", "把月度波动、同比下滑和大额订单异常放到同一条运营检查线上。"]
+        growth: ["增长趋势分析", "识别销售额与订单量的阶段性变化，评估重点产品和渠道对增长的贡献。"],
+        channel: ["渠道结构分析", "对比 Internet 与 Reseller 的销售占比、订单占比和客单价差异，定位渠道优化空间。"],
+        risk: ["经营风险预警", "聚合月度波动、渠道集中度、区域表现和 Top 产品依赖，形成管理层风险清单。"]
       };
       document.querySelectorAll(".regi-mode").forEach(button => {
         button.addEventListener("click", () => {
@@ -3446,6 +3864,8 @@
       bindInteractions();
       scaleDashboard();
       loadCrudProducts();
+      loadAiReport();
+      loadSparkStatus();
 
       const isLocalFile = window.location.protocol === "file:";
       if (isLocalFile) {

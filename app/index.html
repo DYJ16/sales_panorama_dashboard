@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Spark AI 企业销售决策系统</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="sky-bg" aria-hidden="true">
+    <span class="cloud cloud-a"></span>
+    <span class="cloud cloud-b"></span>
+    <span class="route route-a"></span>
+    <span class="route route-b"></span>
+    <span class="route route-c"></span>
+  </div>
+
+  <header class="topbar">
+    <a class="brand" href="#slide-01">
+      <span class="brand-icon">✦</span>
+      <span>Spark<span>Star</span></span>
+    </a>
+    <nav>
+      <a href="#slide-03">系统架构</a>
+      <a href="#slide-05">分布式集群</a>
+      <a href="#slide-08">可视化大屏</a>
+      <a href="#slide-09">AI 分析</a>
+    </nav>
+    <button class="index-toggle" type="button">目录 ✦</button>
+  </header>
+
+  <aside class="index-panel">
+    <button data-target="slide-01">01 封面</button>
+    <button data-target="slide-02">02 背景目标</button>
+    <button data-target="slide-03">03 总体架构</button>
+    <button data-target="slide-04">04 技术栈</button>
+    <button data-target="slide-05">05 三节点集群</button>
+    <button data-target="slide-06">06 Spark 引擎</button>
+    <button data-target="slide-07">07 指标体系</button>
+    <button data-target="slide-08">08 可视化大屏</button>
+    <button data-target="slide-09">09 DeepSeek V4</button>
+    <button data-target="slide-10">10 Harness 工程</button>
+    <button data-target="slide-11">11 实机演示</button>
+    <button data-target="slide-12">12 价值总结</button>
+  </aside>
+
+  <div class="progress"><span></span></div>
+  <main class="deck">
+    <section class="slide hero" id="slide-01">
+      <div class="badge">✈ Spark AI Sales Decision · 2026</div>
+      <h1>让每一次销售分析<br>成为一段<span>优雅决策</span></h1>
+      <p class="hero-text">基于 Spark 分布式指标计算与 DeepSeek V4 智能分析的企业销售经营决策平台。</p>
+      <div class="search-card">
+        <div><small>数据源</small><strong>SQL Server</strong></div>
+        <div><small>计算层</small><strong>Spark 集群</strong></div>
+        <div><small>服务层</small><strong>FastAPI</strong></div>
+        <div><small>智能层</small><strong>DeepSeek V4</strong></div>
+      </div>
+    </section>
+
+    <section class="slide two-col" id="slide-02">
+      <div>
+        <p class="kicker">Project Background</p>
+        <h2>从传统销售大屏到 AI 决策系统</h2>
+        <p>传统大屏偏向“展示结果”，本系统进一步把销售数据分析升级为计算、分析、诊断、决策的完整闭环。</p>
+      </div>
+      <div class="compare">
+        <article><small>传统 BI</small><b>SQL → 后端查询 → 图表展示</b><p>复杂聚合压在数据库和接口层，经营解释依赖人工。</p></article>
+        <article class="gold"><small>Spark AI</small><b>SQL → Spark → API → Dashboard → AI</b><p>分布式预计算指标，AI 生成经营诊断和管理建议。</p></article>
+      </div>
+    </section>
+
+    <section class="slide" id="slide-03">
+      <p class="kicker">System Architecture</p>
+      <h2>五层架构串起完整数据链路</h2>
+      <div class="flight-line">
+        <article><b>01</b><span>数据源层</span><small>AdventureWorksDW</small></article>
+        <article class="active"><b>02</b><span>分布式计算层</span><small>Spark Standalone</small></article>
+        <article><b>03</b><span>指标结果层</span><small>JSON Output</small></article>
+        <article><b>04</b><span>接口服务层</span><small>FastAPI</small></article>
+        <article><b>05</b><span>智能展示层</span><small>ECharts + DeepSeek</small></article>
+      </div>
+    </section>
+
+    <section class="slide" id="slide-04">
+      <p class="kicker">Technology Stack</p>
+      <h2>每个技术组件服务一类核心能力</h2>
+      <div class="tech-grid">
+        <article><small>warehouse</small><b>SQL Server</b><span>销售事实与维度数据</span></article>
+        <article><small>compute</small><b>Spark / PySpark</b><span>多节点指标计算</span></article>
+        <article><small>bridge</small><b>JDBC</b><span>数仓到计算层</span></article>
+        <article><small>backend</small><b>FastAPI</b><span>REST 指标接口</span></article>
+        <article><small>visual</small><b>ECharts</b><span>经营图表呈现</span></article>
+        <article><small>ai</small><b>DeepSeek V4</b><span>经营诊断报告</span></article>
+      </div>
+    </section>
+
+    <section class="slide cluster" id="slide-05">
+      <p class="kicker">Distributed Cluster</p>
+      <h2>node1、node2、node3 构成 Spark 计算航线</h2>
+      <div class="cluster-map">
+        <div class="master"><small>master</small><b>node1:7077</b><span>接收作业 · 资源管理 · 调度 Task</span></div>
+        <div class="workers">
+          <article><small>worker</small><b>node1</b><span>参与计算</span></article>
+          <article><small>worker</small><b>node2</b><span>处理 Partition</span></article>
+          <article><small>worker</small><b>node3</b><span>横向扩展</span></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" id="slide-06">
+      <p class="kicker">Spark Metric Engine</p>
+      <h2>从销售明细到经营指标</h2>
+      <div class="pipeline">
+        <span>事实表 + 维度表</span><i></i>
+        <span>统一销售宽表</span><i></i>
+        <span>分布式聚合</span><i></i>
+        <span>JSON 指标结果</span>
+      </div>
+      <div class="chips">
+        <code>compute_kpis()</code><code>compute_trend()</code><code>compute_channels()</code>
+        <code>compute_top_products()</code><code>compute_geo()</code><code>compute_alerts()</code>
+      </div>
+    </section>
+
+    <section class="slide" id="slide-07">
+      <p class="kicker">Business Metrics</p>
+      <h2>从销售规模到风险预警的指标体系</h2>
+      <div class="metric-grid">
+        <article><b>KPI</b><span>销售额 / 订单 / 客户 / 客单价</span></article>
+        <article><b>趋势</b><span>月度销售额、峰值与低谷</span></article>
+        <article><b>渠道</b><span>Internet / Reseller 结构</span></article>
+        <article><b>产品</b><span>Top 产品、贡献率、产品线</span></article>
+        <article><b>区域</b><span>国家、地区、城市销售表现</span></article>
+        <article><b>预警</b><span>回落、集中、波动风险</span></article>
+      </div>
+    </section>
+
+    <section class="slide dashboard" id="slide-08">
+      <div>
+        <p class="kicker">Management Cockpit</p>
+        <h2>面向管理层的销售经营驾驶舱</h2>
+        <p>蓝白科技风、轻量图表、Spark 状态和 AI 经营分析中心，让数据来源与分析结果都可感知。</p>
+      </div>
+      <div class="screen">
+        <div class="screen-top">Spark AI 企业销售决策系统 <span>source: spark</span></div>
+        <div class="screen-kpis"><b>29.3M</b><b>80K</b><b>18K</b><b>606</b></div>
+        <div class="screen-chart"></div>
+        <div class="screen-report">DeepSeek V4 经营诊断报告</div>
+      </div>
+    </section>
+
+    <section class="slide two-col" id="slide-09">
+      <div>
+        <p class="kicker">DeepSeek V4</p>
+        <h2>从指标展示到经营诊断</h2>
+        <p>Spark 负责把数据算成指标，DeepSeek V4 负责把指标解释成经营判断。</p>
+      </div>
+      <div class="ai-card">
+        <article><small>input</small><b>KPI / 趋势 / 渠道 / 产品 / 区域 / 预警</b></article>
+        <article class="gold"><small>output</small><b>经营概览 / 风险判断 / 管理建议</b></article>
+      </div>
+    </section>
+
+    <section class="slide" id="slide-10">
+      <p class="kicker">Harness Engineering</p>
+      <h2>让 AI 输出专业、克制、可落地</h2>
+      <div class="rules">
+        <span>基于数据</span><span>业务语言</span><span>结构清晰</span><span>长度可控</span><span>行动导向</span>
+      </div>
+      <pre>读取 Spark 指标结果
+  → 组装经营分析 Prompt
+  → 调用 DeepSeek V4 API
+  → 保存报告
+  → 前端展示</pre>
+    </section>
+
+    <section class="slide" id="slide-11">
+      <p class="kicker">Live Demo</p>
+      <h2>用户如何使用这套销售决策系统</h2>
+      <div class="journey">
+        <span>看指标</span><span>看趋势</span><span>看结构</span><span>看风险</span><span>生成 AI 建议</span>
+      </div>
+      <p class="wide">用户不需要手写 SQL，也不需要人工逐个解释图表，系统把 Spark 指标结果、可视化大屏和 DeepSeek 经营报告组合成一条完整使用路径。</p>
+    </section>
+
+    <section class="slide" id="slide-12">
+      <p class="kicker">Final Value</p>
+      <h2>Spark 与 DeepSeek V4 构成核心竞争力</h2>
+      <div class="value-grid">
+        <article><b>数据可信</b><span>SQL Server 提供销售事实</span></article>
+        <article><b>计算高效</b><span>Spark 提供分布式指标计算</span></article>
+        <article><b>展示直观</b><span>ECharts 提供经营可视化</span></article>
+        <article><b>诊断智能</b><span>DeepSeek V4 输出决策建议</span></article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <span class="current">01</span>
+    <span>Scroll / Arrow Keys / Space</span>
+  </footer>
+  <script src="./script.js"></script>
+</body>
+</html>
