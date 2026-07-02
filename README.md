@@ -2,7 +2,7 @@
 
 基于 **SQL Server / AdventureWorksDW + Spark Standalone + FastAPI + ECharts + DeepSeek V4** 构建的企业销售经营决策系统。
 
-![image-20260702220257522](C:\Users\PXHONY\AppData\Roaming\Typora\typora-user-images\image-20260702220257522.png)
+![系统总览](docs/images/system-overview.png)
 
 本项目不是传统意义上的销售图表大屏，而是一套将 **分布式指标计算、经营可视化、AI 诊断报告、产品数据管理** 结合在一起的企业级销售分析平台。系统通过 Spark 将销售明细数据加工为经营指标，通过 DeepSeek V4 将指标转化为风险判断和管理建议，最终帮助用户完成从“看数据”到“做决策”的闭环。
 
@@ -35,7 +35,7 @@ DeepSeek V4 智能经营诊断
 
 ### 2.0 系统产品设计图
 
-![image-20260702204432635](C:\Users\PXHONY\AppData\Roaming\Typora\typora-user-images\image-20260702204432635.png)
+![系统产品设计图](docs/images/system-dashboard.png)
 
 
 ### 2.1 销售经营总览
@@ -93,7 +93,7 @@ output/spark_result/trend.json
 
 ### 2.8 DeepSeek V4 智能经营诊断
 
-![image-20260702215418312](C:\Users\PXHONY\AppData\Roaming\Typora\typora-user-images\image-20260702215418312.png)
+![DeepSeek V4 AI 经营诊断](docs/images/ai-report.png)
 
 DeepSeek V4 是本系统智能分析能力的核心。它接收 Spark 计算出的 KPI、趋势、渠道、产品、区域和异常预警数据，生成面向管理层的经营诊断报告。
 
@@ -487,7 +487,7 @@ http://node1:8088/index.html
 
 ### 8.4 管理产品数据
 
-![image-20260702215715576](C:\Users\PXHONY\AppData\Roaming\Typora\typora-user-images\image-20260702215715576.png)
+![产品数据管理](docs/images/product-management.png)
 
 产品数据管理区支持搜索、筛选、新增、编辑、删除，适合演示系统不仅能展示分析结果，也能进行基础业务数据维护。
 
