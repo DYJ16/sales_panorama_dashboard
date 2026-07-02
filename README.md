@@ -297,164 +297,157 @@ sales_panorama_dashboard/
   README.md                        项目说明
 ```
 
-## 7. Linux / CentOS7 部署运行
+## 7. Spark、分布式与 DeepSeek V4 核心设计
 
-本 README 面向 Linux / CentOS7 部署目录。推荐将项目放到：
-
-```bash
-/export/server/project/sales_panorama_dashboard
-```
-
-更完整的 GitHub 上传与 Linux 解压部署步骤见：
+本节介绍系统的核心实现思想。具体 Linux 上传、解压、启动步骤已单独整理到：
 
 ```text
 docs/linux_github_deploy_guide.md
 ```
 
-### 7.1 基础环境要求
+### 7.1 Spark 代码设计
 
-- CentOS7
-- Python 3.8+
-- Java
-- Spark Standalone 集群
-- SQL Server JDBC Driver
-- 可访问 SQL Server / AdventureWorksDW
-- node1、node2、node3 主机名可解析
-
-默认路径：
+Spark 相关代码位于：
 
 ```text
-项目目录：/export/server/project/sales_panorama_dashboard
-Spark 目录：/export/server/spark
-Spark Master：spark://node1:7077
-后端端口：8000
-前端端口：8088
+backend/spark_jobs/
 ```
 
-### 7.2 解压部署包
+核心文件包括：
 
-```bash
-mkdir -p /export/server/project
-cd /export/server/project
-tar -xzf sales_panorama_dashboard.tar.gz
-cd /export/server/project/sales_panorama_dashboard
-```
+| 文件 | 作用 |
+| --- | --- |
+| `spark_config.py` | 统一维护 Spark Master、应用名称、结果目录和 JDBC 配置 |
+| `sqlserver_reader.py` | 通过 JDBC 从 SQL Server / AdventureWorksDW 读取事实表和维度表 |
+| `sales_spark_job.py` | 执行销售指标分布式计算并输出 JSON 结果 |
 
-确认目录：
+`sales_spark_job.py` 是 Spark 指标计算主任务，内部按业务指标拆分为多个函数：
 
-```bash
-ls
-```
+| 函数 | 计算内容 |
+| --- | --- |
+| `build_unified_sales` | 合并 Internet 与 Reseller 销售事实，统一销售字段 |
+| `add_dimensions` | 关联日期、产品、客户、区域维度，构建销售宽表 |
+| `compute_kpis` | 计算销售额、订单量、客户数、产品数、客单价 |
+| `compute_trend` | 计算月度销售趋势 |
+| `compute_channels` | 计算渠道销售额、订单量、占比和客单价 |
+| `compute_top_products` | 计算 Top 产品销售排行 |
+| `compute_geo` | 计算国家、地区、城市销售表现 |
+| `compute_alerts` | 计算销售回落、渠道依赖、产品集中等经营风险 |
 
-应看到：
+整体计算流程：
 
 ```text
-backend  frontend  docs  output  scripts  run.py  README.md
+SQL Server 表
+        ↓
+Spark JDBC 读取
+        ↓
+Internet / Reseller 销售事实统一
+        ↓
+关联日期、产品、客户、区域维度
+        ↓
+DataFrame 分布式聚合计算
+        ↓
+输出 kpis / trend / channels / products / geo / alerts JSON
 ```
 
-### 7.3 准备 SQL Server JDBC 驱动
+### 7.2 系统运行时 Spark 的作用
 
-Spark 读取 SQL Server 需要 Microsoft JDBC Driver。将驱动放到以下任一位置：
+Spark 在系统中不是展示层，也不是后端接口层，而是位于 SQL Server 和 FastAPI 之间的 **分布式指标计算引擎**。
 
-```bash
-/export/server/spark/jars/mssql-jdbc.jar
-/export/server/project/sales_panorama_dashboard/lib/mssql-jdbc.jar
-```
-
-也可以运行脚本时指定：
-
-```bash
-JDBC_JAR=/path/to/mssql-jdbc-12.8.1.jre8.jar bash scripts/run_spark_job.sh
-```
-
-### 7.4 检查 Spark 集群
-
-```bash
-bash scripts/check_spark_cluster.sh
-```
-
-Spark Master UI：
+系统运行时，Spark 负责提前完成复杂经营指标计算，FastAPI 只负责读取计算结果并向前端提供接口。
 
 ```text
-http://node1:8080
+SQL Server 明细数据
+        ↓
+Spark 分布式指标计算
+        ↓
+output/spark_result/*.json
+        ↓
+FastAPI 指标服务
+        ↓
+ECharts 前端大屏
+        ↓
+DeepSeek V4 经营诊断
 ```
 
-正常应看到 Worker：
+这样设计后，前端页面刷新时不需要反复触发复杂 SQL 聚合，而是读取 Spark 已经沉淀好的指标结果。
+
+### 7.3 本系统的分布式体现
+
+系统采用 Spark Standalone 三节点模式：
 
 ```text
-node1
-node2
-node3
+node1：Spark Master + Worker
+node2：Spark Worker
+node3：Spark Worker
 ```
 
-### 7.5 一键启动系统
+node1 负责接收任务、管理资源和调度 Executor；node2、node3 作为 Worker 节点参与实际计算。销售明细数据会被划分为多个 Partition，不同 Worker 上的 Executor 并行处理这些 Partition，最终汇总为统一指标结果。
 
-```bash
-cd /export/server/project/sales_panorama_dashboard
-bash scripts/start.sh
-```
+分布式能力主要体现在：
 
-`scripts/start.sh` 会自动完成：
+- Spark 任务提交到 `spark://node1:7077`，不是本地 `local[*]` 模式。
+- node1、node2、node3 都可以参与销售指标计算。
+- KPI、趋势、渠道、产品、区域等指标通过 Spark DataFrame 并行聚合。
+- 数据量增加时，可以通过增加 Worker 节点扩展计算能力。
+- 前端和 AI 共享 Spark 输出结果，避免多个接口重复计算。
+
+相比非分布式系统，本项目的提升如下：
+
+| 对比项 | 非分布式销售大屏 | 本系统 |
+| --- | --- | --- |
+| 计算位置 | 后端接口或数据库实时聚合 | Spark 集群统一计算 |
+| 计算资源 | 单机数据库 / 单个 Web 服务 | node1、node2、node3 多节点 |
+| 页面响应 | 复杂查询会拖慢接口 | 读取 Spark JSON 结果 |
+| 指标口径 | 容易分散在多个 SQL 中 | Spark 统一沉淀指标 |
+| 扩展能力 | 主要依赖单机性能 | 可横向增加 Worker |
+| AI 输入 | 零散查询结果 | 结构化 Spark 指标 |
+
+### 7.4 DeepSeek V4 在系统中的作用
+
+DeepSeek V4 是系统的智能经营诊断层。它不直接替代 Spark，也不直接查询数据库，而是读取 Spark 计算后的结构化指标。
+
+DeepSeek V4 的输入包括：
 
 ```text
-检查 Java / Python / Spark
-创建 Python venv
-使用国内镜像安装依赖
-检查 SQL Server JDBC 驱动
-检查 Spark Master
-运行 Spark 指标计算任务
-生成 DeepSeek V4 AI 报告
-启动 FastAPI 后端
-启动前端静态服务
+KPI 总览
+销售趋势
+渠道结构
+产品排行
+区域销售
+异常预警
 ```
 
-启动成功后访问：
+DeepSeek V4 的输出包括：
 
 ```text
-http://node1:8088/index.html
+总体经营概览
+销售趋势判断
+渠道结构分析
+产品贡献分析
+区域销售判断
+经营风险预警
+管理建议
+下一步行动方向
 ```
 
-后端接口：
+它的价值在于把图表和指标转换成管理层可以直接理解的经营语言。传统销售大屏只告诉用户“发生了什么”，DeepSeek V4 能进一步解释“为什么值得关注”和“下一步应该怎么做”。
+
+### 7.5 Spark 与 DeepSeek V4 的组合价值
+
+Spark 和 DeepSeek V4 在系统中是上下游关系：
 
 ```text
-http://node1:8000/api/kpis
+Spark 负责算得准
+DeepSeek V4 负责解释得清楚
 ```
 
-### 7.6 单独运行 Spark 任务
+Spark 先对销售明细进行统一口径的分布式计算，DeepSeek V4 再基于这些指标生成经营诊断。这样可以避免 AI 直接面对零散数据导致口径不一致，也能避免传统 BI 只展示图表、不提供分析结论的问题。
 
-```bash
-cd /export/server/project/sales_panorama_dashboard
-bash scripts/run_spark_job.sh
-```
-
-生成结果：
+最终系统形成：
 
 ```text
-output/spark_result/kpis.json
-output/spark_result/trend.json
-output/spark_result/top_products.json
-output/spark_result/channels.json
-output/spark_result/geo_sales.json
-output/spark_result/alerts.json
-```
-
-### 7.7 单独生成 DeepSeek V4 报告
-
-```bash
-cd /export/server/project/sales_panorama_dashboard
-bash scripts/generate_ai_report.sh
-```
-
-生成结果：
-
-```text
-output/spark_result/ai_report.txt
-```
-
-### 7.8 停止系统
-
-```bash
-bash scripts/stop.sh
+数据事实 → 分布式指标计算 → 可视化呈现 → AI 经营诊断 → 管理建议
 ```
 
 ## 8. 实机操作流程
