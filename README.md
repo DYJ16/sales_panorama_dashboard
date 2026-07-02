@@ -305,6 +305,12 @@ sales_panorama_dashboard/
 docs/linux_github_deploy_guide.md
 ```
 
+项目演示 PPT 页面：
+
+```text
+docs/ppt.html
+```
+
 ### 7.1 Spark 代码设计
 
 Spark 相关代码位于：
